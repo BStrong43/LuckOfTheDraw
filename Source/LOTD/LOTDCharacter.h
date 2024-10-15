@@ -3,7 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Engine/Engine.h"
 #include "GameFramework/Character.h"
+#include "Bullet.h"
+#include "Magazine.h"
 #include "Logging/LogMacros.h"
 #include "LOTDCharacter.generated.h"
 
@@ -27,14 +31,14 @@ class ALOTDCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
-	
+
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
 
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* JumpAction;
+	UInputAction* RollAction;
 
 	/** Move Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -44,25 +48,56 @@ class ALOTDCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* ShootAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* ShootHoldAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* ShootReleaseAction;
+
+	//THE GUN
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UMagazine* Mag;
+
+
+
+
 public:
 	ALOTDCharacter();
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
+	float CursorSensitivity = 1.0f;
 
 protected:
 
 	/** Called for movement input */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Character Actions")
 	void Move(const FInputActionValue& Value);
 
 	/** Called for looking input */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Character Actions")
 	void Look(const FInputActionValue& Value);
-			
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Character Actions")
+	void Shoot();
+
+	void LookAtLocation(const FVector& TargetLocation);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Character Actions")
+	void Roll();
+
 
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
+
 	// To add mapping context
 	virtual void BeginPlay();
+
+	FVector2D AimVector;
+	float CursorMaxDistance = 150;
 
 public:
 	/** Returns CameraBoom subobject **/
