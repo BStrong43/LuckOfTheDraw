@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Bullet.h"
+#include "LOTDGameMode.h"
 #include "Magazine.generated.h"
 
 
@@ -32,9 +33,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Mag")
 	TArray<int> mag;
 
-	UPROPERTY(EditAnywhere, Category = "Mag|Advanced")
-	TArray<TSubclassOf<ABullet>> ProjectilePool;
-
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -45,6 +43,5 @@ protected:
 
 private:
 	inline int CheckChamberedBullet() { return mag[0]; }
-	void LoadProjectilePool();
 
 };

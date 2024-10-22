@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Bullet.h"
+
 #include "GameFramework/GameModeBase.h"
 #include "LOTDGameMode.generated.h"
 
@@ -13,6 +15,14 @@ class ALOTDGameMode : public AGameModeBase
 
 public:
 	ALOTDGameMode();
+	inline TSubclassOf<ABullet> GetProjectileFromPool(int index) { return ProjectilePool[index]; }
+
+protected:
+	UPROPERTY(EditAnywhere, Category = "Pooled Data")
+	TArray<TSubclassOf<ABullet>> ProjectilePool;
+
+private:
+	void LoadProjectilePool();
 };
 
 

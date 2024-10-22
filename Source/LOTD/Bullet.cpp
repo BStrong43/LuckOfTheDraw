@@ -8,6 +8,8 @@ ABullet::ABullet()
 {
     PrimaryActorTick.bCanEverTick = true;
     distanceCovered = 0;
+    eProjectileType = EProjectileType::BULLET;
+    eDamageType = EDamageType::PT_Default;
 
     //Root Collider
     Collider = CreateDefaultSubobject<USphereComponent>(TEXT("Collider"));
@@ -32,11 +34,11 @@ ABullet::ABullet()
     ProjectileMovement->bRotationFollowsVelocity = false; // Optional: rotate the bullet with its velocity
     ProjectileMovement->bShouldBounce = false; // Set to true if you want the bullet to bounce
     
-
     //Align components
     MeshComponent->SetRelativeLocation(FVector(0, 0, -30));
     MeshComponent->SetRelativeScale3D(FVector(.66));
 
+    //Resize Actor To Bullet Size
     SetActorScale3D(FVector(.25));
 }
 
@@ -47,6 +49,8 @@ void ABullet::BeginPlay()
 
     // Set the initial movement direction (for example, forward)
     movementDirection = GetActorForwardVector();
+
+    OnFire();
 }
 
 // Called every frame

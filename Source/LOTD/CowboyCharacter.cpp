@@ -111,7 +111,8 @@ void ACowboyCharacter::Shoot()
             OnShoot(shot);
         }
     }
-    else {
+    else 
+    {
         //Still in recoil
     }
 }

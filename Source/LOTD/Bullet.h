@@ -10,7 +10,7 @@
 #include "Bullet.generated.h"
 
 UENUM(BlueprintType) // Allows the enum to be used in Blueprints
-enum class EProjectileType : uint8
+enum class EDamageType : uint8
 {
 	PT_Default    UMETA(DisplayName = "Default"),
 	PT_Fire       UMETA(DisplayName = "Fire"),
@@ -19,6 +19,15 @@ enum class EProjectileType : uint8
 	PT_Explosive   UMETA(DisplayName = "Explosive"),
 	PT_Max        UMETA(Hidden) // Use this to represent the maximum value
 };
+
+UENUM(BlueprintType)
+enum class EProjectileType : uint8
+{
+	BULLET    UMETA(DisplayName = "Bullet"),
+	GRENADE   UMETA(DisplayName = "Grenade"),
+	BUFF      UMETA(DisplayName = "Buff")
+};
+
 
 UCLASS()
 class LOTD_API ABullet : public AActor
@@ -36,6 +45,10 @@ public:
 	void SetCollisionAsEnemy();
 	void SetCollisionAsCowboy();
 	void OnWallHit(FHitResult hit);
+
+	//Called when this 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Projectile Properties")
+	void OnFire();
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Projectile Properties")
 	void DoExplode(FHitResult hit);
@@ -57,10 +70,13 @@ public:
 	UStaticMeshComponent* MeshComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Projectile Properties")
-	EProjectileType bDamageType;
+	EProjectileType eProjectileType;
+
+	UPROPERTY(EditAnywhere, Category = "Projectile Properties")
+	EDamageType eDamageType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile Properties")
-	float RecoilTime = 0.57f;
+	float RecoilTime = 0.40f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile Properties")
 	float Damage = 10.0f;
