@@ -21,8 +21,8 @@ void ABadguyController::BeginPlay()
 
 void ABadguyController::OnPossess(APawn* InPawn)
 {
-    Super::Possess(InPawn);
-    UE_LOG(LogTemp, Warning, TEXT("ABadguyController has possessed: %s"), *InPawn->GetName());
+    //Super::Possess(InPawn);
+    //UE_LOG(LogTemp, Warning, TEXT("ABadguyController has possessed: %s"), *InPawn->GetName());
     
     guy = Cast<ABadguy>(InPawn);
 }
@@ -35,11 +35,16 @@ void ABadguyController::OnUnPossess()
 void ABadguyController::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
+    if (!inPath)
+    {
+        MoveToLocation(cb->GetActorLocation(), guy->DesiredShootRange, true, true, true, guy->CanStrafeWhileRunning);
+    }
+    
 }
 
 void ABadguyController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
 {
     Super::OnMoveCompleted(RequestID, Result);
 
-
+    inPath = false;
 }

@@ -10,6 +10,7 @@ ABadguy::ABadguy()
 	PrimaryActorTick.bCanEverTick = true;
     health = MaxHealth;
     AIControllerClass = ABadguyController::StaticClass();
+    AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 
     Collider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Collider"));
@@ -51,6 +52,14 @@ ABadguy::ABadguy()
 void ABadguy::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void ABadguy::Heal(int healAmount)
+{
+    health += healAmount;
+
+    if (health > MaxHealth)
+        health = MaxHealth;
 }
 
 // Called every frame

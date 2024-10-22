@@ -36,11 +36,20 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Badguy|Events")
 	void OnDie();
 
+	UFUNCTION(BlueprintCallable, Category = "Badguy|Character")
+	void Heal(int healAmount);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Character")
 	float MaxHealth = 30;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Character")
 	float RunSpeed = 30;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Character")
+	float DesiredShootRange = 600;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Character")
+	bool CanStrafeWhileRunning = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Movement")
 	UCowboyMovementComponent* MovementComponent;
