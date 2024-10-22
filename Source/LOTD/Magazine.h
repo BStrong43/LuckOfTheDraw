@@ -24,12 +24,15 @@ public:
 	TSubclassOf<ABullet> ShootChamberedBullet();
 
 	UFUNCTION(BlueprintCallable, Category = "Mag")
-	void LoadDefaultMagazine();
+	void LoadDefaultCowboyMagazine();
+
+	UFUNCTION(BlueprintCallable, Category = "Mag")
+	void LoadDefaultEnemyMagazine();
 
 	UPROPERTY(EditAnywhere, Category = "Mag")
 	TArray<int> mag;
 
-	UPROPERTY(EditAnywhere, Category = "Mag")
+	UPROPERTY(EditAnywhere, Category = "Mag|Advanced")
 	TArray<TSubclassOf<ABullet>> ProjectilePool;
 
 protected:

@@ -10,22 +10,28 @@ UMagazine::UMagazine()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 	LoadProjectilePool();
-	LoadDefaultMagazine();
 }
 
-void UMagazine::LoadDefaultMagazine()
+void UMagazine::LoadDefaultEnemyMagazine()
+{
+	mag.Empty();
+	mag.Add(0);
+	MagSize = 1;
+}
+
+void UMagazine::LoadDefaultCowboyMagazine()
 {
 	mag.Add(0);
-	mag.Add(1);
-	mag.Add(2);
 	mag.Add(0);
-	mag.Add(1);
-	mag.Add(2);
+	mag.Add(0);
+	mag.Add(0);
+	mag.Add(0);
+	mag.Add(0);
 }
 
 void UMagazine::LoadProjectilePool()
 {
-
+	ProjectilePool.Add(ABullet::StaticClass());
 }
 
 

@@ -18,6 +18,8 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 ALOTDCharacter::ALOTDCharacter()
 {
+	RootComponent = GetCapsuleComponent();
+
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
@@ -37,25 +39,28 @@ ALOTDCharacter::ALOTDCharacter()
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("Camera Arm"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->bUsePawnControlRotation = false; // Don't rotate the arm based on the controller
+	
+	// Don't rotate the arm based on the controller
+	CameraBoom->bUsePawnControlRotation = false; 
+	CameraBoom->bInheritPitch = false;
+	CameraBoom->bInheritYaw = false;
+	CameraBoom->bInheritRoll = false;
+
 	CameraBoom->SocketOffset = FVector(0.0f, 0.0f, 0.0f);
-	CameraBoom->TargetArmLength = 2000.0f; // The camera follows at this distance above the character	
-	CameraBoom->SetWorldLocationAndRotation(GetActorLocation(), FRotator(0.0f, -90.0f, 0.0f)); //Camera arm rotated downwards
+	CameraBoom->TargetArmLength = 1500.0f; // The camera follows at this distance above the character	
+	CameraBoom->SetWorldLocationAndRotation(GetActorLocation(), FRotator(-90.0f, 0.0f, 0.0f)); //Camera arm rotated downwards
 
 	// Create a follow camera
-	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Top Down Camera"));
+
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
-
 	AimVector = FVector2D(0.0, CursorMaxDistance);
-
 	Mag = CreateDefaultSubobject<UMagazine>(TEXT("Magazine"));
+	Mag->FillMag(0);
 }
 
 void ALOTDCharacter::BeginPlay()
@@ -69,6 +74,12 @@ void ALOTDCharacter::BeginPlay()
 
 void ALOTDCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
+
+	//TO DO
+	//Decouple Input from pawn actions and move to custom player controller
+
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
 	// Add Input Mapping Context
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
 	{
@@ -125,14 +136,19 @@ void ALOTDCharacter::Move_Implementation(const FInputActionValue& Value)
 
 void ALOTDCharacter::Look_Implementation(const FInputActionValue& Value)
 {
-	// input is a Vector2D
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
+	LookAxisVector *= CursorSensitivity;
+	FVector Loc;
+
+	//GEngine->AddOnScreenDebugMessage(-1, .5f, FColor::Red, TEXT("" + LookAxisVector.ToString()));
 
 	if (Controller != nullptr)
 	{
-		// add yaw and pitch input to controller
-		AddControllerYawInput(LookAxisVector.X);
-		AddControllerPitchInput(LookAxisVector.Y);
+		AimVector += LookAxisVector;
+		AimVector = AimVector.GetSafeNormal() * CursorMaxDistance;
+
+		Loc = FVector(-AimVector.Y, AimVector.X, 0.0f);
+		LookAtLocation(GetActorLocation() + Loc);
 	}
 }
 
@@ -144,7 +160,6 @@ void ALOTDCharacter::Roll_Implementation()
 void ALOTDCharacter::Shoot_Implementation()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Shoot"));
-
 	TSubclassOf<ABullet> Projectile = Mag->ShootChamberedBullet();
 
 	if (Projectile)
@@ -158,9 +173,6 @@ void ALOTDCharacter::Shoot_Implementation()
 		param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 		param.TransformScaleMethod = ESpawnActorScaleMethod::MultiplyWithRoot;
 
-		//TODO FIGURE OUT SHOOTING
-		// MAKE WRITE PROJECTILE POOL
-
 		//If  regular Bullets get spawned, this line doesnt work properly
 		GetWorld()->SpawnActor<ABullet>(Projectile, Barrel, BulletDir, param);
 	}
@@ -171,6 +183,4 @@ void ALOTDCharacter::LookAtLocation(const FVector& TargetLocation)
 	FVector Direction = (TargetLocation - GetActorLocation()).GetSafeNormal();
 	FRotator NewRotation = Direction.Rotation();
 	SetActorRotation(NewRotation);
-
-
 }

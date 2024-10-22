@@ -7,35 +7,37 @@
 ABullet::ABullet()
 {
     PrimaryActorTick.bCanEverTick = true;
+    distanceCovered = 0;
 
-    // Create the mesh component
-    MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
-    MeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-    //MeshComponent->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1); // Set to your desired channel
-    //MeshComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-    MeshComponent->SetCollisionResponseToChannel(ECC_PhysicsBody, ECR_Overlap); // Respond to Pawns
+    //Root Collider
+    Collider = CreateDefaultSubobject<USphereComponent>(TEXT("Collider"));
+    //Collider->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    RootComponent = Collider;
 
+    // Create the mesh component 
+    MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh Component"));
     static ConstructorHelpers::FObjectFinder<UStaticMesh> SphereMeshAsset(TEXT("'/Game/EngineAssets/Primitives/Shape_Sphere.Shape_Sphere'"));
     if (SphereMeshAsset.Succeeded())
     {
         MeshComponent->SetStaticMesh(SphereMeshAsset.Object);
     }
+    MeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    MeshComponent->SetupAttachment(RootComponent);
 
-    RootComponent = MeshComponent;
 
-    ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
-    ProjectileMovement->UpdatedComponent = MeshComponent;
+    ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement"));
+    ProjectileMovement->UpdatedComponent = RootComponent;
     ProjectileMovement->InitialSpeed = ProjectileSpeed; // Set a default initial speed
     ProjectileMovement->MaxSpeed = ProjectileSpeed; // Set a maximum speed
     ProjectileMovement->bRotationFollowsVelocity = false; // Optional: rotate the bullet with its velocity
     ProjectileMovement->bShouldBounce = false; // Set to true if you want the bullet to bounce
+    
 
+    //Align components
+    MeshComponent->SetRelativeLocation(FVector(0, 0, -30));
+    MeshComponent->SetRelativeScale3D(FVector(.66));
 
-    // Set default values
-    ProjectileSpeed = 2000.0f; // Default speed
-    ProjectileRange = 1500.0f; // Default range
-
-    distanceCovered = 0;
+    SetActorScale3D(FVector(.25));
 }
 
 // Called when the game starts or when spawned
@@ -54,10 +56,15 @@ void ABullet::Tick(float DeltaTime)
 
     // Move the projectile
     FVector NewLocation = GetActorLocation() + (movementDirection * ProjectileSpeed * DeltaTime);
-    SetActorLocation(NewLocation, true);
+    FHitResult hit;
+    SetActorLocation(NewLocation, true, &hit);
 
-    //Track Distance
-    distanceCovered += (ProjectileSpeed * DeltaTime);
+    if (hit.bBlockingHit)
+        OnHit(Collider, hit.GetActor(), hit.GetComponent(), hit.ImpactNormal, hit);
+
+    //Distance Control
+    if(TrackDistance)
+        distanceCovered += (ProjectileSpeed * DeltaTime);
 
     if (distanceCovered >= ProjectileRange)
     {
@@ -65,17 +72,42 @@ void ABullet::Tick(float DeltaTime)
     }
 }
 
-void ABullet::NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
+void ABullet::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-    //Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
-
-    if (Other && Other != this && Other != Owner) // Ensure you don't hit yourself
+    
+    if (OtherActor && OtherActor != this && OtherComp)
     {
-        // Implement damage logic or other interactions here
-        UE_LOG(LogTemp, Warning, TEXT("Hit detected with: %s"), *Other->GetName());
+        // Log the actor we hit
+        UE_LOG(LogTemp, Warning, TEXT("Bullet hit: %s"), *OtherActor->GetName());
 
-        // Optionally destroy the bullet after hitting
+        UGameplayStatics::ApplyDamage(OtherActor, Damage, GetInstigatorController(), this, nullptr);
+        
+        // Destroy the bullet on hit
+        DoExplode(Hit);
         Destroy();
     }
 }
 
+void ABullet::SetCollisionAsEnemy()
+{
+    Collider->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel4);  //EnemyBullet
+    Collider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);  // Cowboy
+    Collider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Ignore);  // Enemy
+    Collider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel4, ECollisionResponse::ECR_Ignore);  // Other enemy bullets
+    Collider->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);  // Walls
+}
+
+void ABullet::SetCollisionAsCowboy()
+{
+    Collider->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel3);  //CowboyBullet
+    Collider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);  // Enemy
+    Collider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);  // Cowboy
+    Collider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel4, ECollisionResponse::ECR_Ignore);  // Other cowboy bullets
+    Collider->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);  // Walls
+}
+
+void ABullet::OnWallHit(FHitResult hit)
+{
+    DoExplode(hit);
+    Destroy();
+}
