@@ -9,6 +9,8 @@ ABadguy::ABadguy()
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
     health = MaxHealth;
+    AIControllerClass = ABadguyController::StaticClass();
+
 
     Collider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Collider"));
     RootComponent = Collider;  // Set capsule as root component
@@ -72,7 +74,7 @@ float ABadguy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, A
     {
         Die();
     }
-		return 0;
+	return health;
 }
 
 void ABadguy::Die()

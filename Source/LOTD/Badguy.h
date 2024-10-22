@@ -5,9 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "Components/CapsuleComponent.h"
+#include "BadguyController.h"
 #include "Magazine.h"
 #include "CowboyMovementComponent.h"
 #include "Badguy.generated.h"
+
 
 UCLASS()
 class LOTD_API ABadguy : public APawn
@@ -36,6 +38,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Character")
 	float MaxHealth = 30;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Character")
+	float RunSpeed = 30;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Movement")
 	UCowboyMovementComponent* MovementComponent;

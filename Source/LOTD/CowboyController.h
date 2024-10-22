@@ -6,13 +6,15 @@
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "CowboyCharacter.h"
 #include "GameFramework/PlayerController.h"
 #include "CowboyController.generated.h"
 
 /**
  * 
  */
+
+class ACowboyCharacter;
+
 UCLASS()
 class LOTD_API ACowboyController : public APlayerController
 {

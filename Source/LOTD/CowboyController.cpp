@@ -2,6 +2,7 @@
 
 
 #include "CowboyController.h"
+#include "CowboyCharacter.h"
 
 ACowboyController::ACowboyController()
 {
