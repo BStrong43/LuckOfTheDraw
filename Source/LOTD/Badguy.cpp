@@ -6,7 +6,17 @@ ABadguy::ABadguy()
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
     health = MaxHealth;
-    AIControllerClass = ABadguyController::StaticClass();
+
+    //Set Up AIController
+    static ConstructorHelpers::FClassFinder<AController> AIControllerBPClass(TEXT("/Game/Blueprints/BadguyController_BP"));  // Replace with your actual Blueprint path
+    if (AIControllerBPClass.Class)
+    {
+        AIControllerClass = AIControllerBPClass.Class;
+    }
+    else 
+    {
+        AIControllerClass = ABadguyController::StaticClass();
+    }
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
     Collider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Collider"));

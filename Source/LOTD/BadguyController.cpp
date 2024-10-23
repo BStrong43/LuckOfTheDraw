@@ -58,22 +58,11 @@ void ABadguyController::Tick(float DeltaTime)
         //No pawn to control
         return;
 
+    targetLoc = cb->GetActorLocation();
     
     if (!inPath)
     {
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Magenta, TEXT("Attempting Path"));
-        targetLoc = cb->GetActorLocation();
-        path = NavSystem->FindPathToLocationSynchronously(GetWorld(), guy->GetActorLocation(), targetLoc);
-
-        if (path)
-        {
-            PathFollower->RequestMove(FAIMoveRequest(targetLoc), path->GetPath());
-        }
-        else
-        {
-            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, GetName() + FString(" NULL Path"));
-        }
-
+        DoPath(targetLoc);
         inPath = true;
     }
 }
@@ -86,7 +75,18 @@ void ABadguyController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollo
     inPath = false;
 }
 
-UNavigationPath* ABadguyController::CalculatePath() 
+void ABadguyController::DoPath_Implementation(FVector dest)
 {
-    return nullptr;
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Magenta, TEXT("Attempting Path"));
+
+    path = NavSystem->FindPathToLocationSynchronously(GetWorld(), guy->GetActorLocation(), dest);
+
+    if (path)
+    {
+        PathFollower->RequestMove(FAIMoveRequest(dest), path->GetPath());
+    }
+    else
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, GetName() + FString(" NULL Path"));
+    }
 }

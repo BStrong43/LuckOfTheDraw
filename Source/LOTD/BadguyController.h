@@ -23,6 +23,10 @@ class LOTD_API ABadguyController : public AAIController
 
 	ABadguyController();
 
+public:
+	UFUNCTION(BlueprintNativeEvent, Category = "Badguy|Actions")
+	void DoPath(FVector Loc);
+
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnUnPossess() override;
@@ -31,7 +35,6 @@ protected:
 	virtual void Tick(float DeltaTime);
 	
 	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
-	virtual UNavigationPath* CalculatePath();
 
 	UNavigationSystemV1* NavSystem;
 	UPathFollowingComponent* PathFollower;
