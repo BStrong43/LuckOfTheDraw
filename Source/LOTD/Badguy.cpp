@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Badguy.h"
 
 // Sets default values
@@ -11,7 +8,6 @@ ABadguy::ABadguy()
     health = MaxHealth;
     AIControllerClass = ABadguyController::StaticClass();
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
-
 
     Collider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Collider"));
     RootComponent = Collider;  // Set capsule as root component
@@ -46,6 +42,10 @@ ABadguy::ABadguy()
     {
         Mesh->SetAnimInstanceClass(CowboyAnimBlueprint.Object->GeneratedClass);
     }
+
+    MovementComponent = CreateDefaultSubobject<UCowboyMovementComponent>(TEXT("Movement"));
+    MovementComponent->MoveSpeed = RunSpeed;
+    MovementComponent->SetUpdatedComponent(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -68,6 +68,11 @@ void ABadguy::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+UPawnMovementComponent* ABadguy::GetMovementComponent() const
+{
+    return MovementComponent;
+}
+
 void ABadguy::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Enemy Hit"));
@@ -76,13 +81,14 @@ void ABadguy::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrim
 
 float ABadguy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("TakeDamage Function"));
+
     health -= DamageAmount;
 
     if (health <= 0)
     {
         Die();
     }
+
 	return health;
 }
 

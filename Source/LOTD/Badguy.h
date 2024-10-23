@@ -25,12 +25,13 @@ protected:
 	virtual void BeginPlay() override;
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	virtual UPawnMovementComponent* GetMovementComponent() const override;
 
 	//Destroying Actor is already handled
 	UFUNCTION(BlueprintImplementableEvent, Category = "Badguy|Events")
@@ -39,17 +40,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Badguy|Character")
 	void Heal(int healAmount);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Character")
-	float MaxHealth = 30;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Character")
-	float RunSpeed = 30;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Character")
-	float DesiredShootRange = 600;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Character")
-	bool CanStrafeWhileRunning = true;
+public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Movement")
 	UCowboyMovementComponent* MovementComponent;
@@ -63,8 +55,22 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Gun")
 	UMagazine* Mag;
 
-private:
-	void Die();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Character")
+	float MaxHealth = 30;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Character")
+	float RunSpeed = 30;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Character")
+	float DesiredShootRange = 600;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Character")
+	bool CanStrafeWhileRunning = true;
+
+
+private:
+
+	void Die();
 	float health;
+	float recoilTime = 0;
 };
