@@ -3,6 +3,9 @@
 
 #include "CowboyController.h"
 #include "CowboyCharacter.h"
+#include "InputMappingContext.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 
 ACowboyController::ACowboyController()
 {
@@ -97,7 +100,7 @@ void ACowboyController::HandleMouseLook(const FInputActionValue& Value)
     cursorLoc += (MouseVector * LookSensitivity);
     cursorLoc = cursorLoc.GetSafeNormal() * CursorDistance;
 
-    DrawDebugPoint(GetWorld(), cb->GetActorLocation() + cursorLoc, 10.f, FColor::Red, false, 1.f);
+    DrawDebugPoint(GetWorld(), cb->GetActorLocation() + cursorLoc, 5.f, FColor::Red, false, 0.2f);
 
     //Apply
     cb->Look(cursorLoc);

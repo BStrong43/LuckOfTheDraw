@@ -3,17 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InputMappingContext.h"
-#include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
 #include "GameFramework/PlayerController.h"
 #include "CowboyController.generated.h"
 
-/**
- * 
- */
+struct FInputActionValue;
 
 class ACowboyCharacter;
+class UInputAction;
+class UInputMappingContext;
 
 UCLASS()
 class LOTD_API ACowboyController : public APlayerController
