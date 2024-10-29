@@ -15,8 +15,10 @@ class LOTD_API UCowboyMovementComponent : public UPawnMovementComponent
 {
 	GENERATED_BODY()
 
-	public:
+	
 
+	public:
+	UCowboyMovementComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 

@@ -7,7 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "BadguyController.h"
 #include "Magazine.h"
-#include "CowboyMovementComponent.h"
+#include "GameFramework/FloatingPawnMovement.h"
 #include "Badguy.generated.h"
 
 
@@ -32,27 +32,39 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	virtual UPawnMovementComponent* GetMovementComponent() const override;
+	void LookAt(FVector point);
 
 	//Destroying Actor is already handled
 	UFUNCTION(BlueprintImplementableEvent, Category = "Badguy|Events")
 	void OnDie();
 
+	//Tell Badguy to 
+	UFUNCTION(BlueprintCallable, Category = "Badguy|Actions")
+	void Shoot();
+
+	//Called when Badguy shoots. Use to apply effects to the shot
+	UFUNCTION(BlueprintImplementableEvent, Category = "Badguy|Actions")
+	void OnShoot(ABullet* shot);
+
 	UFUNCTION(BlueprintCallable, Category = "Badguy|Character")
 	void Heal(int healAmount);
+
+	UFUNCTION(BlueprintCallable, Category = "Badguy|Character")
+	bool HasLineOfSightToPawn(APawn* OtherPawn);
 
 
 public:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Movement")
-	UCowboyMovementComponent* MovementComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Badguy|Movement")
+	UFloatingPawnMovement* MovementComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Badguy|Character")
 	USkeletalMeshComponent* Mesh;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Collision")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Badguy|Collision")
 	UCapsuleComponent* Collider;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Gun")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Badguy|Gun")
 	UMagazine* Mag;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Character")
@@ -65,10 +77,17 @@ public:
 	float DesiredShootRange = 600;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Character")
+	float ReloadTime = 3.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Character")
+	float TimeBetweenShots = 0.57f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Badguy|Character")
 	bool CanStrafeWhileRunning = true;
 
-
 private:
+
+	void RunShootTimer();
 
 	void Die();
 	float health;

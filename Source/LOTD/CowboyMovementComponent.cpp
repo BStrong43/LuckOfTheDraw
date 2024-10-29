@@ -3,6 +3,11 @@
 
 #include "CowboyMovementComponent.h"
 
+UCowboyMovementComponent::UCowboyMovementComponent()
+{
+    
+}
+
 void UCowboyMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "BadguyController.generated.h"
 
@@ -27,6 +28,18 @@ public:
 	UFUNCTION(BlueprintNativeEvent, Category = "Badguy|Actions")
 	void DoPath(FVector Loc);
 
+	UFUNCTION(BlueprintCallable, Category = "Badguy|Character")
+	float GetShootingRange();
+
+	UFUNCTION(BlueprintCallable, Category = "Badguy|Character")
+	float GetMaxHealth();
+
+	UFUNCTION(BlueprintCallable, Category = "Badguy|Character")
+	bool GetCanStrafe();
+
+	UFUNCTION(BlueprintCallable, Category = "Badguy|Character")
+	inline ABadguy* GetGuy() { return guy; }
+
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnUnPossess() override;
@@ -37,7 +50,7 @@ protected:
 	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
 
 	UNavigationSystemV1* NavSystem;
-	UPathFollowingComponent* PathFollower;
+	//UPathFollowingComponent* PathFollower;
 
 private:
 	

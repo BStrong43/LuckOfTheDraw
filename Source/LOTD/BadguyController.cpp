@@ -13,8 +13,8 @@ ABadguyController::ABadguyController()
     // Enable Tick for this controller
     PrimaryActorTick.bCanEverTick = true;
 
-    PathFollower = CreateDefaultSubobject<UPathFollowingComponent>(TEXT("Path Follower"));
-    SetPathFollowingComponent(PathFollower);
+    //PathFollower = CreateDefaultSubobject<UPathFollowingComponent>(TEXT("Path Follower"));
+    //SetPathFollowingComponent(PathFollower);
 }
 
 void ABadguyController::BeginPlay()
@@ -22,11 +22,8 @@ void ABadguyController::BeginPlay()
     Super::BeginPlay();
 
     cb = Cast<ACowboyCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+    
     NavSystem = UNavigationSystemV1::GetCurrent(GetWorld());
-
-    if(IsValid(NavSystem))
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Nav System Found"));
-
 }
 
 void ABadguyController::OnPossess(APawn* InPawn)
@@ -36,8 +33,8 @@ void ABadguyController::OnPossess(APawn* InPawn)
     
     if (IsValid(guy))
     {
-        PathFollower->SetMovementComponent(guy->GetMovementComponent());
-        PathFollower->SetAcceptanceRadius(guy->DesiredShootRange);
+        GetPathFollowingComponent()->SetAcceptanceRadius(guy->DesiredShootRange);
+        GetPathFollowingComponent()->SetMovementComponent(guy->GetMovementComponent());
     }
     else
     {
@@ -47,18 +44,18 @@ void ABadguyController::OnPossess(APawn* InPawn)
 
 void ABadguyController::OnUnPossess()
 {
-    Super::UnPossess();
+    
 }
 
 void ABadguyController::Tick(float DeltaTime)
 {
-    Super::Tick(DeltaTime);
     
     if (!IsValid(guy))
         //No pawn to control
         return;
 
     targetLoc = cb->GetActorLocation();
+    guy->LookAt(targetLoc);
     
     if (!inPath)
     {
@@ -72,21 +69,40 @@ void ABadguyController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollo
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Move Completed"));
     Super::OnMoveCompleted(RequestID, Result);
 
+    if (Result.IsSuccess())
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Move completed successfully."));
+    }
+    else if (Result.IsFailure())
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Move failed."));
+    }
+    else if (Result.IsInterrupted())
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Move was aborted."));
+    }
+
     inPath = false;
 }
 
 void ABadguyController::DoPath_Implementation(FVector dest)
 {
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Magenta, TEXT("Attempting Path"));
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Magenta, TEXT("Attempting Path From C++"));
 
-    path = NavSystem->FindPathToLocationSynchronously(GetWorld(), guy->GetActorLocation(), dest);
+    UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, targetLoc);
+}
 
-    if (path)
-    {
-        PathFollower->RequestMove(FAIMoveRequest(dest), path->GetPath());
-    }
-    else
-    {
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, GetName() + FString(" NULL Path"));
-    }
+//Getters for blueprint
+bool ABadguyController::GetCanStrafe()
+{
+    return guy->CanStrafeWhileRunning;
+}
+float ABadguyController::GetShootingRange() 
+{ 
+    return guy->DesiredShootRange; 
+}
+
+float ABadguyController::GetMaxHealth() 
+{ 
+    return guy->MaxHealth; 
 }

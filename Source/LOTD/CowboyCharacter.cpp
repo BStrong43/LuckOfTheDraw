@@ -8,6 +8,7 @@ ACowboyCharacter::ACowboyCharacter()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+    SetCanBeDamaged(true);
     health = MaxHealth;
 
     //Capsule Init as Root Component
@@ -30,6 +31,7 @@ ACowboyCharacter::ACowboyCharacter()
     Mag = CreateDefaultSubobject<UMagazine>(TEXT("Gun Clip"));
     Mag->LoadDefaultCowboyMagazine();
 
+    //Spring Arm Init
     SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Arm"));
     SpringArm->SetupAttachment(RootComponent);
     SpringArm->TargetArmLength = 900.f; // Set camera height
