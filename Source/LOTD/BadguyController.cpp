@@ -4,17 +4,19 @@
 #include "BadguyController.h"
 #include "Badguy.h"
 #include "CowboyCharacter.h"
+#include "Kismet/GameplayStatics.h"
+
+//DEBUG HEADERS
 #include "NavigationSystem.h"
 #include "NavigationPath.h"
-#include "Kismet/GameplayStatics.h"
 
 ABadguyController::ABadguyController()
 {
     // Enable Tick for this controller
     PrimaryActorTick.bCanEverTick = true;
 
-    //PathFollower = CreateDefaultSubobject<UPathFollowingComponent>(TEXT("Path Follower"));
-    //SetPathFollowingComponent(PathFollower);
+    
+    SetPathFollowingComponent(GetPathFollowingComponent());
 }
 
 void ABadguyController::BeginPlay()
@@ -22,14 +24,18 @@ void ABadguyController::BeginPlay()
     Super::BeginPlay();
 
     cb = Cast<ACowboyCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-    
-    NavSystem = UNavigationSystemV1::GetCurrent(GetWorld());
 }
 
 void ABadguyController::OnPossess(APawn* InPawn)
 {
-    SetPawn(InPawn);
     guy = Cast<ABadguy>(InPawn);
+    SetPawn(guy);
+
+    guy->Controller = this;
+    
+    //I also have this in BeginPlay()
+    //Necessary for BP Controller use (for some reason) 
+    if(!cb) cb = Cast<ACowboyCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
     
     if (IsValid(guy))
     {
@@ -38,7 +44,7 @@ void ABadguyController::OnPossess(APawn* InPawn)
     }
     else
     {
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, GetName() + FString(" Could not possess badguy"));
+        GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Emerald, GetName() + FString(" Could not possess badguy"));
     }
 }
 
@@ -49,7 +55,6 @@ void ABadguyController::OnUnPossess()
 
 void ABadguyController::Tick(float DeltaTime)
 {
-    
     if (!IsValid(guy))
         //No pawn to control
         return;
@@ -66,20 +71,19 @@ void ABadguyController::Tick(float DeltaTime)
 
 void ABadguyController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
 {
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Move Completed"));
     Super::OnMoveCompleted(RequestID, Result);
 
     if (Result.IsSuccess())
     {
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Move completed successfully."));
+        GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("Move completed successfully."));
     }
     else if (Result.IsFailure())
     {
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Move failed."));
+        GEngine->AddOnScreenDebugMessage(-1, 7.f, FColor::Green, TEXT("Move failed."));
     }
     else if (Result.IsInterrupted())
     {
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Move was aborted."));
+        GEngine->AddOnScreenDebugMessage(-1, 4.f, FColor::Green, TEXT("Move was aborted."));
     }
 
     inPath = false;
@@ -87,7 +91,10 @@ void ABadguyController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollo
 
 void ABadguyController::DoPath_Implementation(FVector dest)
 {
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Magenta, TEXT("Attempting Path From C++"));
+    GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Magenta, TEXT("Movement Started"));
+
+    GetPathFollowingComponent()->SetAcceptanceRadius(guy->DesiredShootRange);
+    GetPathFollowingComponent()->SetMovementComponent(guy->GetMovementComponent());
 
     UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, targetLoc);
 }
@@ -97,6 +104,7 @@ bool ABadguyController::GetCanStrafe()
 {
     return guy->CanStrafeWhileRunning;
 }
+
 float ABadguyController::GetShootingRange() 
 { 
     return guy->DesiredShootRange; 
@@ -105,4 +113,37 @@ float ABadguyController::GetShootingRange()
 float ABadguyController::GetMaxHealth() 
 { 
     return guy->MaxHealth; 
+}
+
+bool ABadguyController::IsNavDataValidForPawn()
+{
+    UNavigationSystemV1* NavSystem = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+    if (!NavSystem)
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Magenta, TEXT("Navigation System is not available in the world."));
+        return false;
+    }
+
+    // Check if there is valid navigation data for the controller's pawn
+    if (APawn* ControlledPawn = GetPawn())
+    {
+        // Retrieve the pawn's navigation agent properties
+        const FNavAgentProperties& NavAgentProperties = ControlledPawn->GetNavAgentPropertiesRef();
+
+        // Get the navigation data for these properties
+        const ANavigationData* NavData = NavSystem->GetNavDataForProps(NavAgentProperties);
+        if (NavData)
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Magenta, TEXT("Valid navigation data found for the pawn."));
+            return true;
+        }
+        else
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Magenta, TEXT("No compatible navigation data found for the pawn's NavAgentProperties."));
+            return false;
+        }
+    }
+
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Magenta, TEXT("Controller does not currently possess a pawn."));
+    return false;
 }

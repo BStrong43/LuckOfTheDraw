@@ -8,8 +8,6 @@ ABadguy::ABadguy()
     SetCanBeDamaged(true);
     health = MaxHealth;
 
-    
-
     Collider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Collider"));
     RootComponent = Collider;               // Set capsule as root component
     Collider->InitCapsuleSize(42.f, 96.f);  // Set Standard UE Mannequin size
@@ -44,13 +42,18 @@ ABadguy::ABadguy()
         Mesh->SetAnimInstanceClass(CowboyAnimBlueprint.Object->GeneratedClass);
     }
 
+    //Movement Set Up
     MovementComponent = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("Movement"));
     MovementComponent->Acceleration = RunSpeed;
     MovementComponent->SetUpdatedComponent(RootComponent);
+    MovementComponent->NavAgentProps.bCanWalk = true;
+    MovementComponent->NavAgentProps.bCanJump = false;
+    MovementComponent->RegisterComponent();
 
     //Set Up AIController
-    static ConstructorHelpers::FClassFinder<AController> AIControllerBPClass(TEXT("/Game/ThirdPerson/Blueprints/AI/BadguyControllerBPo"));
-    if (AIControllerBPClass.Class)
+    bool useBlueprintController = false;
+    static ConstructorHelpers::FClassFinder<AController> AIControllerBPClass(TEXT("/Game/ThirdPerson/Blueprints/AI/BadguyControllerBP"));
+    if (AIControllerBPClass.Class && useBlueprintController)
     {
         AIControllerClass = AIControllerBPClass.Class;
     }
@@ -100,20 +103,19 @@ void ABadguy::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrim
 
 float ABadguy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-
     health -= DamageAmount;
 
     if (health <= 0)
     {
         Die();
     }
-
 	return health;
 }
 
 void ABadguy::Die()
 {
     OnDie();
+    GetController()->StopMovement();
     Destroy();
 }
 

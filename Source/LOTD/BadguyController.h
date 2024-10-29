@@ -49,10 +49,10 @@ protected:
 	
 	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
 
-	UNavigationSystemV1* NavSystem;
-	//UPathFollowingComponent* PathFollower;
-
 private:
+	//DEBUG
+	bool IsNavDataValidForPawn();
+
 	
 	//Reference to Badguy being controlled
 	ABadguy* guy;
@@ -65,7 +65,4 @@ private:
 
 	//Status of badguy pathing
 	bool inPath = false;
-
-	//Current path badguy is taking
-	UNavigationPath* path;
 };
