@@ -12,9 +12,14 @@
  * 
  */
 class ABadguy;
-class ACowboyCharacter;
-class UNavigationSystemV1;
-class UNavigationPath;
+
+UENUM(BlueprintType)
+enum class EEnemyAction : uint8
+{
+	Reloading    UMETA(DisplayName = "Reloading"),
+	Moving       UMETA(DisplayName = "Moving"),
+	Shooting     UMETA(DisplayName = "Shooting")
+};
 
 
 UCLASS()
@@ -52,17 +57,12 @@ protected:
 private:
 	//DEBUG
 	bool IsNavDataValidForPawn();
-
 	
 	//Reference to Badguy being controlled
 	ABadguy* guy;
 
-	//Player Reference
-	ACowboyCharacter* cb;
-
-	//Location badguy will path to
-	FVector targetLoc;
-
 	//Status of badguy pathing
+	EEnemyAction CurrentAction;
 	bool inPath = false;
+	float shootTime, reloadTime;
 };

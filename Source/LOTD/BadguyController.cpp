@@ -19,23 +19,15 @@ ABadguyController::ABadguyController()
     SetPathFollowingComponent(GetPathFollowingComponent());
 }
 
-void ABadguyController::BeginPlay()
-{
-    Super::BeginPlay();
-
-    cb = Cast<ACowboyCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-}
-
 void ABadguyController::OnPossess(APawn* InPawn)
 {
     guy = Cast<ABadguy>(InPawn);
     SetPawn(guy);
-
     guy->Controller = this;
     
     //I also have this in BeginPlay()
     //Necessary for BP Controller use (for some reason) 
-    if(!cb) cb = Cast<ACowboyCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+    //if(!cb) cb = Cast<ACowboyCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
     
     if (IsValid(guy))
     {
@@ -44,7 +36,7 @@ void ABadguyController::OnPossess(APawn* InPawn)
     }
     else
     {
-        GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Emerald, GetName() + FString(" Could not possess badguy"));
+        GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Emerald, GetName() + FString("Could not possess badguy"));
     }
 }
 
@@ -53,17 +45,27 @@ void ABadguyController::OnUnPossess()
     
 }
 
+void ABadguyController::BeginPlay()
+{
+    Super::BeginPlay();
+    CurrentAction = EEnemyAction::Moving;
+}
+
 void ABadguyController::Tick(float DeltaTime)
 {
-    if (!IsValid(guy))
-        //No pawn to control
+    if (inPath)
+    {//Pawn is Busy
+        GEngine->AddOnScreenDebugMessage(-1, .2f, FColor::Green, TEXT("inPath = true"));
         return;
+    }
+    GEngine->AddOnScreenDebugMessage(-1, .2f, FColor::Green, GetPathFollowingComponent()->GetStatusDesc());
 
-    targetLoc = cb->GetActorLocation();
+    FVector targetLoc = UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation();
+
     guy->LookAt(targetLoc);
-    
-    if (!inPath)
-    {
+
+    if (!inPath && FVector::DistSquared(guy->GetActorLocation(), targetLoc) > FMath::Pow(GetPathFollowingComponent()->GetAcceptanceRadius(), 2))
+    {//If inPath = false & Distance To cowboy is more than Desired shooting radius
         DoPath(targetLoc);
         inPath = true;
     }
@@ -77,6 +79,10 @@ void ABadguyController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollo
     {
         GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("Move completed successfully."));
     }
+    else if (Result.HasFlag(FPathFollowingResultFlags::OwnerFinished))
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("Owner Finished"));
+    }
     else if (Result.IsFailure())
     {
         GEngine->AddOnScreenDebugMessage(-1, 7.f, FColor::Green, TEXT("Move failed."));
@@ -85,7 +91,6 @@ void ABadguyController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollo
     {
         GEngine->AddOnScreenDebugMessage(-1, 4.f, FColor::Green, TEXT("Move was aborted."));
     }
-
     inPath = false;
 }
 
@@ -96,7 +101,7 @@ void ABadguyController::DoPath_Implementation(FVector dest)
     GetPathFollowingComponent()->SetAcceptanceRadius(guy->DesiredShootRange);
     GetPathFollowingComponent()->SetMovementComponent(guy->GetMovementComponent());
 
-    UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, targetLoc);
+    MoveToLocation(dest, GetPathFollowingComponent()->GetAcceptanceRadius(), true, true);
 }
 
 //Getters for blueprint

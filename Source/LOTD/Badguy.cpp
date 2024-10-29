@@ -52,7 +52,7 @@ ABadguy::ABadguy()
 
     //Set Up AIController
     bool useBlueprintController = false;
-    static ConstructorHelpers::FClassFinder<AController> AIControllerBPClass(TEXT("/Game/ThirdPerson/Blueprints/AI/BadguyControllerBP"));
+    static ConstructorHelpers::FClassFinder<AAIController> AIControllerBPClass(TEXT("/Game/ThirdPerson/Blueprints/AI/BadguyControllerBP.BadguyControllerBP"));
     if (AIControllerBPClass.Class && useBlueprintController)
     {
         AIControllerClass = AIControllerBPClass.Class;
