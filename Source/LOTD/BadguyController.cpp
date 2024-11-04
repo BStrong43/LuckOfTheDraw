@@ -14,7 +14,7 @@ ABadguyController::ABadguyController()
 {
     // Enable Tick for this controller
     PrimaryActorTick.bCanEverTick = true;
-
+    PathTimer = FTimerHandle();
     
     SetPathFollowingComponent(GetPathFollowingComponent());
 }
@@ -48,50 +48,22 @@ void ABadguyController::OnUnPossess()
 void ABadguyController::BeginPlay()
 {
     Super::BeginPlay();
-    CurrentAction = EEnemyAction::Moving;
+    GetWorld()->GetTimerManager().SetTimer(PathTimer, this, &ABadguyController::DoPathWrapper, pathClockTime, true, 1.5f);
+        //(TimerHandle, this, &AMyAIController::UpdateMovement, 1.0f, true);
 }
 
 void ABadguyController::Tick(float DeltaTime)
 {
-    if (inPath)
-    {//Pawn is Busy
-        GEngine->AddOnScreenDebugMessage(-1, .2f, FColor::Green, TEXT("inPath = true"));
-        return;
-    }
     GEngine->AddOnScreenDebugMessage(-1, .2f, FColor::Green, GetPathFollowingComponent()->GetStatusDesc());
-
-    FVector targetLoc = UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation();
-
+    targetLoc = UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation();
     guy->LookAt(targetLoc);
 
-    if (!inPath && FVector::DistSquared(guy->GetActorLocation(), targetLoc) > FMath::Pow(GetPathFollowingComponent()->GetAcceptanceRadius(), 2))
-    {//If inPath = false & Distance To cowboy is more than Desired shooting radius
-        DoPath(targetLoc);
-        inPath = true;
-    }
+   
 }
 
-void ABadguyController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
+void ABadguyController::DoPathWrapper()
 {
-    Super::OnMoveCompleted(RequestID, Result);
-
-    if (Result.IsSuccess())
-    {
-        GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("Move completed successfully."));
-    }
-    else if (Result.HasFlag(FPathFollowingResultFlags::OwnerFinished))
-    {
-        GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("Owner Finished"));
-    }
-    else if (Result.IsFailure())
-    {
-        GEngine->AddOnScreenDebugMessage(-1, 7.f, FColor::Green, TEXT("Move failed."));
-    }
-    else if (Result.IsInterrupted())
-    {
-        GEngine->AddOnScreenDebugMessage(-1, 4.f, FColor::Green, TEXT("Move was aborted."));
-    }
-    inPath = false;
+    DoPath(targetLoc);
 }
 
 void ABadguyController::DoPath_Implementation(FVector dest)
@@ -151,4 +123,25 @@ bool ABadguyController::IsNavDataValidForPawn()
 
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Magenta, TEXT("Controller does not currently possess a pawn."));
     return false;
+}
+
+void ABadguyController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
+{
+    if (Result.IsSuccess())
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("Move completed successfully."));
+    }
+    else if (Result.HasFlag(FPathFollowingResultFlags::OwnerFinished))
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("Owner Finished"));
+    }
+    else if (Result.IsFailure())
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 7.f, FColor::Green, TEXT("Move failed."));
+    }
+    else if (Result.IsInterrupted())
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 4.f, FColor::Green, TEXT("Move was aborted."));
+    }
+    
 }

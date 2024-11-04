@@ -58,11 +58,14 @@ private:
 	//DEBUG
 	bool IsNavDataValidForPawn();
 	
+	//Utility
+	void DoPathWrapper();
+
 	//Reference to Badguy being controlled
 	ABadguy* guy;
+	FVector targetLoc;
+	FTimerHandle PathTimer;
+	float pathClockTime = 3;
 
-	//Status of badguy pathing
-	EEnemyAction CurrentAction;
-	bool inPath = false;
-	float shootTime, reloadTime;
+	
 };
