@@ -4,9 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Bullet.h"
-
+//#include "WaveManager.h"
 #include "GameFramework/GameModeBase.h"
 #include "LOTDGameMode.generated.h"
+
+class AWaveManager;
 
 UCLASS(minimalapi)
 class ALOTDGameMode : public AGameModeBase
@@ -18,7 +20,14 @@ public:
 	inline TSubclassOf<ABullet> GetProjectileFromPool(int index) { return ProjectilePool[index]; }
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Pooled Data")
+
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime);
+
+	UPROPERTY(VisibleAnywhere, Category = "Pooled Data")
+	AWaveManager* WaveManager;
+
+	UPROPERTY(VisibleAnywhere, Category = "Pooled Data")
 	TArray<TSubclassOf<ABullet>> ProjectilePool;
 
 private:

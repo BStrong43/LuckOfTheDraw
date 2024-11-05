@@ -5,6 +5,7 @@
 #include "CowboyCharacter.h"
 #include "CowboyController.h"
 #include "UObject/ConstructorHelpers.h"
+#include "WaveManager.h"
 
 ALOTDGameMode::ALOTDGameMode()
 {
@@ -18,4 +19,14 @@ ALOTDGameMode::ALOTDGameMode()
 void ALOTDGameMode::LoadProjectilePool()
 {
 	ProjectilePool.Add(ABullet::StaticClass());
+}
+
+void ALOTDGameMode::Tick(float DeltaTime)
+{
+
+}
+
+void ALOTDGameMode::BeginPlay()
+{
+
 }
