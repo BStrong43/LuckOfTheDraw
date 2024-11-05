@@ -3,12 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Bullet.h"
-//#include "WaveManager.h"
+
+#include "EnemySpawnPoint.h"
 #include "GameFramework/GameModeBase.h"
 #include "LOTDGameMode.generated.h"
 
+class ABullet;
 class AWaveManager;
+
 
 UCLASS(minimalapi)
 class ALOTDGameMode : public AGameModeBase
@@ -32,6 +34,9 @@ protected:
 
 private:
 	void LoadProjectilePool();
+	void LoadProjectilePoolRecursive();
+
+	void SetUpWaveManager();
 };
 
 

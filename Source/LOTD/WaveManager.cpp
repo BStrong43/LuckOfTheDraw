@@ -6,7 +6,6 @@
 // Sets default values
 AWaveManager::AWaveManager()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 }
@@ -21,12 +20,14 @@ void AWaveManager::BeginPlay()
 // Called every frame
 void AWaveManager::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
+	
 
 }
 
 void AWaveManager::StartWave()
 {
+    GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Emerald, GetName() + FString("Round Started"));
+
     if (CurrentWaveIndex < WaveData->EnemyWaves.Num())
     {
         // Reset counters and start spawning for the wave
@@ -37,9 +38,11 @@ void AWaveManager::StartWave()
 
 void AWaveManager::EndWave()
 {
-    // Perform actions like resetting indices or triggering events
+    //Perform actions like resetting indices or triggering events
     CurrentWaveIndex = 0;
     ActiveEnemyCount = 0;
+
+    GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Emerald, GetName() + FString("Round Finished"));
 }
 
 void AWaveManager::PauseWave()
@@ -57,15 +60,20 @@ void AWaveManager::EnemyDied()
     }
 
     // Check if all enemies in the wave are defeated
-    if (ActiveEnemyCount == 0 && CurrentWaveIndex >= WaveData->EnemyWaves.Num())
+    if (CurrentWaveIndex >= WaveData->EnemyWaves.Num())
     {
         EndWave();
     }
 }
 
-void AWaveManager::TrackEnemyCount(ABadguy* EnemyType)
+int AWaveManager::TrackEnemyCount(ABadguy* EnemyType)
 {
+    return 0;
+}
 
+void AWaveManager::AddSpawnPoint(AActor* point)
+{
+    SpawnPoints.Add(point);
 }
 
 void AWaveManager::SpawnNextEnemy()
@@ -75,7 +83,7 @@ void AWaveManager::SpawnNextEnemy()
 
     const FEnemyWaveInfo& WaveInfo = WaveData->EnemyWaves[CurrentWaveIndex];
 
-    if (WaveInfo.Quantity > 0)
+    if (WaveInfo.TotalInWave > 0)
     {
         AActor* SpawnPoint = SpawnPoints[FMath::RandRange(0, SpawnPoints.Num() - 1)];
         FActorSpawnParameters SpawnParams;

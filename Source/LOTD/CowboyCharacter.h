@@ -63,6 +63,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cowboy|Character")
 	float MaxHealth = 30;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cowboy|Character")
+	float CameraHeight = 1200;
+
 public:
 	///Components___________________________________________________________
 

@@ -2,8 +2,3 @@
 
 
 #include "WaveDataContainer.h"
-
-UWaveDataContainer::UWaveDataContainer()
-{
-
-}

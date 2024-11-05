@@ -18,17 +18,19 @@ struct FEnemyWaveInfo
     TSubclassOf<ABadguy> EnemyType;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    int Quantity;
+    int32 MaxConcurrent;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    int32 TotalInWave;
 };
 
 /**
  * 
  */
 UCLASS(BlueprintType)
-class LOTD_API UWaveDataContainer : public UPrimaryDataAsset
+class LOTD_API UWaveDataContainer : public UDataAsset
 {
 	GENERATED_BODY()
-	UWaveDataContainer();
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly)

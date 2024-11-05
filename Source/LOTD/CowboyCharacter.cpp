@@ -34,7 +34,7 @@ ACowboyCharacter::ACowboyCharacter()
     //Spring Arm Init
     SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Arm"));
     SpringArm->SetupAttachment(RootComponent);
-    SpringArm->TargetArmLength = 900.f; // Set camera height
+    SpringArm->TargetArmLength = CameraHeight; // Set camera height
     SpringArm->bDoCollisionTest = false;
     SpringArm->SetAbsolute(false, true, false);//Lock Rotation
     SpringArm->SetRelativeRotation(FRotator(-90.f, 0.f, 0.f)); // Top-down view

@@ -7,7 +7,6 @@
 #include "WaveDataContainer.h"
 #include "WaveManager.generated.h"
 
-
 UCLASS()
 class LOTD_API AWaveManager : public AActor
 {
@@ -25,6 +24,8 @@ public:
 	void PauseWave();
 	void EnemyDied();
 
+	void AddSpawnPoint(AActor* point);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -34,16 +35,15 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere)
 	UWaveDataContainer* WaveData;
 
 	UPROPERTY(VisibleAnywhere)
 	TArray<AActor*> SpawnPoints;
 
-	int CurrentWaveIndex = 0;
-	int ActiveEnemyCount = 0;
+	int32 CurrentWaveIndex = 0;
+	int32 ActiveEnemyCount = 0;
 
 	void SpawnNextEnemy();
-	void TrackEnemyCount(ABadguy* Enemy);
-
+	int TrackEnemyCount(ABadguy* Enemy);
 };
