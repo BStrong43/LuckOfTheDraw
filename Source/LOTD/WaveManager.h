@@ -22,7 +22,7 @@ public:
 	void StartWave();
 	void EndWave();
 	void PauseWave();
-	void EnemyDied();
+	void OnEnemyDeath(TSubclassOf<ABadguy> EnemyClass);
 
 	void AddSpawnPoint(AActor* point);
 
@@ -30,20 +30,27 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	void SpawnInitialEnemies();
+	void TrySpawnEnemy(TSubclassOf<ABadguy> EnemyClass);
+
+	void SpawnTimerTick();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere)
 	UWaveDataContainer* WaveData;
 
 	UPROPERTY(VisibleAnywhere)
 	TArray<AActor*> SpawnPoints;
+	
+	FTimerHandle SpawnTimer;
 
-	int32 CurrentWaveIndex = 0;
-	int32 ActiveEnemyCount = 0;
+	TMap<TSubclassOf<ABadguy>, int32> ActiveEnemiesCount;
+	TMap<TSubclassOf<ABadguy>, int32> TotalSpawnedCount;
 
-	void SpawnNextEnemy();
+	AActor* GetRandomSpawnLoc();
 	int TrackEnemyCount(ABadguy* Enemy);
 };

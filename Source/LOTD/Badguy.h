@@ -10,6 +10,7 @@
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Badguy.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyDeath, TSubclassOf<ABadguy>, EnemyClass);
 
 UCLASS()
 class LOTD_API ABadguy : public APawn
@@ -54,6 +55,9 @@ public:
 
 
 public:
+
+	UPROPERTY(BlueprintAssignable, Category = "Badguy|Events")
+	FOnEnemyDeath OnDeath;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Badguy|Movement")
 	UFloatingPawnMovement* MovementComponent;

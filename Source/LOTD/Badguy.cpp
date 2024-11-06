@@ -51,16 +51,7 @@ ABadguy::ABadguy()
     MovementComponent->RegisterComponent();
 
     //Set Up AIController
-    bool useBlueprintController = false;
-    static ConstructorHelpers::FClassFinder<AAIController> AIControllerBPClass(TEXT("/Game/ThirdPerson/Blueprints/AI/BadguyControllerBP.BadguyControllerBP"));
-    if (AIControllerBPClass.Class && useBlueprintController)
-    {
-        AIControllerClass = AIControllerBPClass.Class;
-    }
-    else
-    {
-        AIControllerClass = ABadguyController::StaticClass();
-    }
+    AIControllerClass = ABadguyController::StaticClass();
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
@@ -114,6 +105,7 @@ float ABadguy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, A
 
 void ABadguy::Die()
 {
+    OnDeath.Broadcast(GetClass());
     OnDie();
     GetController()->StopMovement();
     Destroy();

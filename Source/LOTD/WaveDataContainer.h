@@ -14,14 +14,14 @@ struct FEnemyWaveInfo
 {
     GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSubclassOf<ABadguy> EnemyType;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Data")
+    TSubclassOf<class ABadguy> EnemyClass;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    int32 MaxConcurrent;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Data")
+    int32 TotalToSpawn;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    int32 TotalInWave;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Data")
+    int32 MaxConcurrentEnemies;
 };
 
 /**

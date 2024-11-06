@@ -17,14 +17,7 @@ ALOTDGameMode::ALOTDGameMode()
 	PlayerControllerClass = ACowboyController::StaticClass();
 	GameStateClass = ALOTD_GameStateBase::StaticClass();
 
-	LoadProjectilePool();
-}
-
-void ALOTDGameMode::LoadProjectilePool()
-{
-    ProjectilePool.Empty();
-
-    ProjectilePool.Add(ABullet::StaticClass());
+    
 }
 
 
@@ -40,7 +33,7 @@ void ALOTDGameMode::LoadProjectilePoolRecursive() //This does not work currently
     FARFilter Filter;
     Filter.ClassNames.Add(UBlueprint::StaticClass()->GetFName());
     Filter.bRecursivePaths = true;
-    Filter.PackagePaths.Add("/Game/ThirdPerson/Blueprints/Bullets"); // Specify your folder path here, like "/Game/Blueprints"
+    Filter.PackagePaths.Add("/Game/ThirdPerson/Blueprints/Bullets");
 
     // Search the asset registry
     TArray<FAssetData> AssetDataList;
@@ -54,7 +47,7 @@ void ALOTDGameMode::LoadProjectilePoolRecursive() //This does not work currently
         {
             // Add the class to ProjectilePool
             // This line dont work
-            //ProjectilePool.Add(Cast<TSubclassOf<ABullet>>(Blueprint->GeneratedClass));
+            //ProjectilePool.Add(Cast<TSubclassOf<ABullet>>(Blueprint->GeneratedClass->StaticClass()));
         }
     }
 }
@@ -66,6 +59,7 @@ void ALOTDGameMode::Tick(float DeltaTime)
 
 void ALOTDGameMode::BeginPlay()
 {
+    LoadProjectilePool();
     SetUpWaveManager();
 }
 
@@ -73,10 +67,13 @@ void ALOTDGameMode::SetUpWaveManager()
 {
     AActor* a = UGameplayStatics::GetActorOfClass(GetWorld(), AWaveManager::StaticClass());
     
-    if (a) WaveManager = Cast<AWaveManager>(a);
+    if (a)
+        WaveManager = Cast<AWaveManager>(a);
 
     if (IsValid(WaveManager))
     {
+        GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Emerald, TEXT("WaveManager Found"));
+
         TArray<AActor*> potentialpoints;
         UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemySpawnPoint::StaticClass(), potentialpoints);
 
@@ -85,4 +82,25 @@ void ALOTDGameMode::SetUpWaveManager()
             WaveManager->AddSpawnPoint(potentialpoints[i]);
         }
     }
+}
+
+void ALOTDGameMode::LoadProjectilePool()
+{
+    ProjectilePool.Empty();
+
+    ProjectilePool.Add(ABullet::StaticClass());
+
+    TSubclassOf<ABullet> b;
+
+    static ConstructorHelpers::FObjectFinder<ABullet> Fireball(TEXT("Bullet'/Game/ThirdPerson/Blueprints/Bullets/Fireball.Fireball'"));
+
+    if (Fireball.Succeeded())
+    {
+        ProjectilePool.Add(Fireball.Object->StaticClass());
+    }
+    else
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, TEXT("COULD NOT LOAD FIREBALL"));
+    }
+
 }

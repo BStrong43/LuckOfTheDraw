@@ -14,13 +14,23 @@ AWaveManager::AWaveManager()
 void AWaveManager::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+    if (false)
+    {
+        StartWave();
+        GetWorld()->GetTimerManager().SetTimer(SpawnTimer, this, &AWaveManager::SpawnTimerTick, 5.0, true, 1.f);
+    }
+    
 }
 
-// Called every frame
 void AWaveManager::Tick(float DeltaTime)
 {
-	
+
+}
+
+void AWaveManager::SpawnTimerTick() 
+{
+
 
 }
 
@@ -28,20 +38,11 @@ void AWaveManager::StartWave()
 {
     GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Emerald, GetName() + FString("Round Started"));
 
-    if (CurrentWaveIndex < WaveData->EnemyWaves.Num())
-    {
-        // Reset counters and start spawning for the wave
-        ActiveEnemyCount = 0;
-        SpawnNextEnemy();
-    }
+    SpawnInitialEnemies();
 }
 
 void AWaveManager::EndWave()
 {
-    //Perform actions like resetting indices or triggering events
-    CurrentWaveIndex = 0;
-    ActiveEnemyCount = 0;
-
     GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Emerald, GetName() + FString("Round Finished"));
 }
 
@@ -50,23 +51,66 @@ void AWaveManager::PauseWave()
 
 }
 
-void AWaveManager::EnemyDied()
+void AWaveManager::OnEnemyDeath(TSubclassOf<ABadguy> EnemyClass)
 {
-    ActiveEnemyCount--;
-
-    if (ActiveEnemyCount < MaxEnemies)
+    if (ActiveEnemiesCount.Contains(EnemyClass))
     {
-        SpawnNextEnemy();
-    }
+        ActiveEnemiesCount[EnemyClass]--;
 
-    // Check if all enemies in the wave are defeated
-    if (CurrentWaveIndex >= WaveData->EnemyWaves.Num())
-    {
-        EndWave();
+        // Check if more enemies of this type should be spawned
+        if (ActiveEnemiesCount[EnemyClass] < 3 && TotalSpawnedCount[EnemyClass] < WaveData->EnemyWaves.FindByPredicate([EnemyClass](const FEnemyWaveInfo& Data) {
+            return Data.EnemyClass == EnemyClass;
+            })->TotalToSpawn)
+        {
+            TrySpawnEnemy(EnemyClass);
+        }
     }
 }
 
-int AWaveManager::TrackEnemyCount(ABadguy* EnemyType)
+void AWaveManager::SpawnInitialEnemies()
+{
+    for (const FEnemyWaveInfo& Wave : WaveData->EnemyWaves)
+    {
+        int32 InitialSpawnCount = FMath::Min(Wave.TotalToSpawn, Wave.MaxConcurrentEnemies);
+        TotalSpawnedCount.Add(Wave.EnemyClass, 0);
+        ActiveEnemiesCount.Add(Wave.EnemyClass, 0);
+
+        for (int32 i = 0; i < InitialSpawnCount; ++i)
+        {
+            TrySpawnEnemy(Wave.EnemyClass);
+        }
+    }
+}
+
+void AWaveManager::TrySpawnEnemy(TSubclassOf<ABadguy> EnemyClass)
+{
+    // Get an available spawn point
+    if (SpawnPoints.Num() == 0)
+        return;
+
+    int32 RandomIndex = FMath::RandRange(0, SpawnPoints.Num() - 1);
+    AActor* SpawnPoint = SpawnPoints[RandomIndex];
+
+    FActorSpawnParameters SpawnParams;
+    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+    ABadguy* SpawnedEnemy = GetWorld()->SpawnActor<ABadguy>(EnemyClass, SpawnPoint->GetActorLocation(), SpawnPoint->GetActorRotation(), SpawnParams);
+    if (SpawnedEnemy)
+    {
+        ActiveEnemiesCount[EnemyClass]++;
+        TotalSpawnedCount[EnemyClass]++;
+
+        // Bind a delegate or event for enemy death
+        SpawnedEnemy->OnDeath.AddDynamic(this, &AWaveManager::OnEnemyDeath);
+    }
+}
+
+AActor* AWaveManager::GetRandomSpawnLoc()
+{
+    return SpawnPoints[FMath::RandRange(0, SpawnPoints.Num() - 1)];
+}
+
+int AWaveManager::TrackEnemyCount(ABadguy* EnemyClass)
 {
     return 0;
 }
@@ -74,30 +118,4 @@ int AWaveManager::TrackEnemyCount(ABadguy* EnemyType)
 void AWaveManager::AddSpawnPoint(AActor* point)
 {
     SpawnPoints.Add(point);
-}
-
-void AWaveManager::SpawnNextEnemy()
-{
-    if (ActiveEnemyCount >= MaxEnemies)
-        return;
-
-    const FEnemyWaveInfo& WaveInfo = WaveData->EnemyWaves[CurrentWaveIndex];
-
-    if (WaveInfo.TotalInWave > 0)
-    {
-        AActor* SpawnPoint = SpawnPoints[FMath::RandRange(0, SpawnPoints.Num() - 1)];
-        FActorSpawnParameters SpawnParams;
-        ABadguy* SpawnedEnemy = GetWorld()->SpawnActor<ABadguy>(WaveInfo.EnemyType, SpawnPoint->GetActorLocation(), FRotator::ZeroRotator, SpawnParams);
-
-        if (SpawnedEnemy)
-        {
-            TrackEnemyCount(SpawnedEnemy);
-            ActiveEnemyCount++;
-        }
-    }
-    else
-    {
-        CurrentWaveIndex++;
-        StartWave();
-    }
 }
