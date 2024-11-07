@@ -35,10 +35,6 @@ public:
 	virtual UPawnMovementComponent* GetMovementComponent() const override;
 	void LookAt(FVector point);
 
-	//Destroying Actor is already handled
-	UFUNCTION(BlueprintImplementableEvent, Category = "Badguy|Events")
-	void OnDie();
-
 	//Tell Badguy to 
 	UFUNCTION(BlueprintCallable, Category = "Badguy|Actions")
 	void Shoot();
@@ -55,7 +51,6 @@ public:
 
 
 public:
-
 	UPROPERTY(BlueprintAssignable, Category = "Badguy|Events")
 	FOnEnemyDeath OnDeath;
 
@@ -91,9 +86,11 @@ public:
 
 private:
 
-	void RunShootTimer();
+	FTimerHandle shootTimer;
+	void ShootTimerTick();
 
 	void Die();
+
 	float health;
 	float recoilTime = 0;
 };

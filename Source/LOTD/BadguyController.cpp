@@ -54,7 +54,6 @@ void ABadguyController::BeginPlay()
 
 void ABadguyController::Tick(float DeltaTime)
 {
-    GEngine->AddOnScreenDebugMessage(-1, .2f, FColor::Green, GetPathFollowingComponent()->GetStatusDesc());
     targetLoc = UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation();
     guy->LookAt(targetLoc);
 
@@ -68,7 +67,7 @@ void ABadguyController::DoPathWrapper()
 
 void ABadguyController::DoPath_Implementation(FVector dest)
 {
-    GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Magenta, TEXT("Movement Started"));
+    //GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Magenta, TEXT("Movement Started"));
 
     GetPathFollowingComponent()->SetAcceptanceRadius(guy->DesiredShootRange);
     GetPathFollowingComponent()->SetMovementComponent(guy->GetMovementComponent());

@@ -2,6 +2,8 @@
 
 
 #include "WaveManager.h"
+#include "Kismet/GameplayStatics.h"
+
 
 // Sets default values
 AWaveManager::AWaveManager()
@@ -12,15 +14,13 @@ AWaveManager::AWaveManager()
 
 // Called when the game starts or when spawned
 void AWaveManager::BeginPlay()
-{
-	Super::BeginPlay();
-
-    if (false)
-    {
-        StartWave();
-        GetWorld()->GetTimerManager().SetTimer(SpawnTimer, this, &AWaveManager::SpawnTimerTick, 5.0, true, 1.f);
-    }
+{   
+    UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("EnemySpawnPoint"), SpawnPoints);
     
+    StartWave();
+    GetWorld()->GetTimerManager().SetTimer(SpawnTimer, this, &AWaveManager::SpawnTimerTick, 5.0, true, 1.f);
+
+    Super::BeginPlay();
 }
 
 void AWaveManager::Tick(float DeltaTime)
@@ -53,14 +53,14 @@ void AWaveManager::PauseWave()
 
 void AWaveManager::OnEnemyDeath(TSubclassOf<ABadguy> EnemyClass)
 {
+    GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Emerald, GetName() + FString("OnEnemyDeath"));
     if (ActiveEnemiesCount.Contains(EnemyClass))
     {
         ActiveEnemiesCount[EnemyClass]--;
 
         // Check if more enemies of this type should be spawned
-        if (ActiveEnemiesCount[EnemyClass] < 3 && TotalSpawnedCount[EnemyClass] < WaveData->EnemyWaves.FindByPredicate([EnemyClass](const FEnemyWaveInfo& Data) {
-            return Data.EnemyClass == EnemyClass;
-            })->TotalToSpawn)
+        if (ActiveEnemiesCount[EnemyClass] < 3 && TotalSpawnedCount[EnemyClass] < WaveData->EnemyWaves.FindByPredicate([EnemyClass]
+        (const FEnemyWaveInfo& Data) {return Data.EnemyClass == EnemyClass;})->TotalToSpawn)
         {
             TrySpawnEnemy(EnemyClass);
         }
@@ -84,19 +84,17 @@ void AWaveManager::SpawnInitialEnemies()
 
 void AWaveManager::TrySpawnEnemy(TSubclassOf<ABadguy> EnemyClass)
 {
-    // Get an available spawn point
-    if (SpawnPoints.Num() == 0)
-        return;
-
     int32 RandomIndex = FMath::RandRange(0, SpawnPoints.Num() - 1);
     AActor* SpawnPoint = SpawnPoints[RandomIndex];
 
     FActorSpawnParameters SpawnParams;
+    
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
     ABadguy* SpawnedEnemy = GetWorld()->SpawnActor<ABadguy>(EnemyClass, SpawnPoint->GetActorLocation(), SpawnPoint->GetActorRotation(), SpawnParams);
     if (SpawnedEnemy)
     {
+        GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Emerald, FString("Spawned Enemy"));
         ActiveEnemiesCount[EnemyClass]++;
         TotalSpawnedCount[EnemyClass]++;
 

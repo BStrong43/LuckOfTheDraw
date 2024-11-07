@@ -40,6 +40,7 @@ void AEnemySpawnPoint::SetDefaultTextProperties()
 
 void AEnemySpawnPoint::HideText()
 {
+	Text->Text = FText::FromString(" ");
 	Text->TextRenderColor = FColor::Transparent;
 }
 

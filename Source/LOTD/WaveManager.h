@@ -16,15 +16,15 @@ public:
 	// Sets default values for this actor's properties
 	AWaveManager();
 
-	UPROPERTY(EditAnywhere)
-	int MaxEnemies;
-
 	void StartWave();
 	void EndWave();
 	void PauseWave();
 	void OnEnemyDeath(TSubclassOf<ABadguy> EnemyClass);
 
 	void AddSpawnPoint(AActor* point);
+
+	UPROPERTY(EditAnywhere)
+	UWaveDataContainer* WaveData;
 
 protected:
 	// Called when the game starts or when spawned
@@ -40,8 +40,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	UPROPERTY(VisibleAnywhere)
-	UWaveDataContainer* WaveData;
 
 	UPROPERTY(VisibleAnywhere)
 	TArray<AActor*> SpawnPoints;

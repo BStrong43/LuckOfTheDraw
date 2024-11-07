@@ -15,7 +15,7 @@ struct FEnemyWaveInfo
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Data")
-    TSubclassOf<class ABadguy> EnemyClass;
+    TSubclassOf<ABadguy> EnemyClass;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Data")
     int32 TotalToSpawn;

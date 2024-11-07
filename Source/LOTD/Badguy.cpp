@@ -59,6 +59,21 @@ ABadguy::ABadguy()
 void ABadguy::BeginPlay()
 {
 	Super::BeginPlay();
+
+    //Randomize Shoot Timer
+    float time = 3, variance;
+
+    variance = FMath::FRand();
+    if (FMath::RandBool())
+        time += variance;
+    else
+        time -= variance;
+
+    variance = FMath::FRand() * 2.f;
+    if (FMath::RandBool())
+        variance *= -1;
+
+    GetWorld()->GetTimerManager().SetTimer(shootTimer, this, &ABadguy::ShootTimerTick, time, true, variance);
 }
 
 void ABadguy::Heal(int healAmount)
@@ -82,14 +97,14 @@ UPawnMovementComponent* ABadguy::GetMovementComponent() const
 
 void ABadguy::LookAt(FVector point)
 {
-    FVector Direction = point.GetSafeNormal();
+    FVector Direction = (point - GetActorLocation()).GetSafeNormal();
     FRotator NewRotation = Direction.Rotation();
     SetActorRotation(NewRotation);
 }
 
 void ABadguy::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Enemy Hit"));
+    //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Enemy Hit"));
 }
 
 float ABadguy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -106,9 +121,14 @@ float ABadguy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, A
 void ABadguy::Die()
 {
     OnDeath.Broadcast(GetClass());
-    OnDie();
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Killed"));
     GetController()->StopMovement();
     Destroy();
+}
+
+void ABadguy::ShootTimerTick()
+{
+
 }
 
 void ABadguy::Shoot()
@@ -128,6 +148,7 @@ void ABadguy::Shoot()
             param.TransformScaleMethod = ESpawnActorScaleMethod::MultiplyWithRoot;
 
             ABullet* shot = GetWorld()->SpawnActor<ABullet>(Projectile, Barrel, BulletDir, param);
+
             shot->SetCollisionAsEnemy();
             recoilTime = TimeBetweenShots;
             OnShoot(shot);

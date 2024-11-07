@@ -17,11 +17,13 @@ ALOTDGameMode::ALOTDGameMode()
 	PlayerControllerClass = ACowboyController::StaticClass();
 	GameStateClass = ALOTD_GameStateBase::StaticClass();
 
-    
+    LoadProjectilePool();
 }
 
 
-void ALOTDGameMode::LoadProjectilePoolRecursive() //This does not work currently :(
+//Failed attempt to recursively load all bullet bp's from a single folder
+//Currently not in use
+void ALOTDGameMode::LoadProjectilePoolRecursive()
 {
 	ProjectilePool.Empty();
 
@@ -45,8 +47,8 @@ void ALOTDGameMode::LoadProjectilePoolRecursive() //This does not work currently
         UBlueprint* Blueprint = Cast<UBlueprint>(AssetData.GetAsset());
         if (Blueprint && Blueprint->GeneratedClass && Blueprint->GeneratedClass->IsChildOf(ABullet::StaticClass()))
         {
-            // Add the class to ProjectilePool
-            // This line dont work
+            //Add the class to ProjectilePool
+            //This line dont work :(
             //ProjectilePool.Add(Cast<TSubclassOf<ABullet>>(Blueprint->GeneratedClass->StaticClass()));
         }
     }
@@ -59,8 +61,7 @@ void ALOTDGameMode::Tick(float DeltaTime)
 
 void ALOTDGameMode::BeginPlay()
 {
-    LoadProjectilePool();
-    SetUpWaveManager();
+
 }
 
 void ALOTDGameMode::SetUpWaveManager()
@@ -89,7 +90,7 @@ void ALOTDGameMode::LoadProjectilePool()
     ProjectilePool.Empty();
 
     ProjectilePool.Add(ABullet::StaticClass());
-
+/*
     TSubclassOf<ABullet> b;
 
     static ConstructorHelpers::FObjectFinder<ABullet> Fireball(TEXT("Bullet'/Game/ThirdPerson/Blueprints/Bullets/Fireball.Fireball'"));
@@ -102,5 +103,5 @@ void ALOTDGameMode::LoadProjectilePool()
     {
         GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, TEXT("COULD NOT LOAD FIREBALL"));
     }
-
+*/
 }
