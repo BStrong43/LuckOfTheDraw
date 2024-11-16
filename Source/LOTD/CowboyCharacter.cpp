@@ -4,7 +4,7 @@
 #include "CowboyCharacter.h"
 
 // Sets default values
-ACowboyCharacter::ACowboyCharacter()
+ACowboyCharacter::ACowboyCharacter(const FObjectInitializer& ObjectInitializer)
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -54,7 +54,7 @@ ACowboyCharacter::ACowboyCharacter()
     {
         CowboyMesh->SetSkeletalMesh(CowboyMeshAsset.Object);
     }
-
+    
     // Animation Init
     static ConstructorHelpers::FObjectFinder<UAnimBlueprint> CowboyAnimBlueprint(TEXT("AnimBlueprint'/Game/Characters/Mannequins/Animations/ABP_Manny.ABP_Manny'"));
     if (CowboyAnimBlueprint.Succeeded())

@@ -60,6 +60,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Badguy|Character")
 	USkeletalMeshComponent* Mesh;
 
+	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Badguy|Collision")
 	UCapsuleComponent* Collider;
 

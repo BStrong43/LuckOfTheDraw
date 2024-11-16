@@ -20,7 +20,7 @@ class LOTD_API ACowboyCharacter : public APawn
 
 public:
 	// Sets default values for this pawn's properties
-	ACowboyCharacter();
+	ACowboyCharacter(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	// Called when the game starts or when spawned

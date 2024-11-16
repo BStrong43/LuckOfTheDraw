@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"//Could be actor
-#include "GameFramework/PawnMovementComponent.h"
+#include "GameFramework/FloatingPawnMovement.h"
 #include "CowboyMovementComponent.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LOTD_API UCowboyMovementComponent : public UPawnMovementComponent
+class LOTD_API UCowboyMovementComponent : public UFloatingPawnMovement
 {
 	GENERATED_BODY()
 
