@@ -2,18 +2,19 @@
 
 
 #include "Bullet.h"
+#include "CowboyCharacter.h"
+#include "Badguy.h"
 
 // Sets default values
 ABullet::ABullet()
 {
     PrimaryActorTick.bCanEverTick = true;
     distanceCovered = 0;
-    eProjectileType = EProjectileType::BULLET;
-    eDamageType = EDamageType::PT_Default;
+    ProjectileType = EProjectileType::BULLET;
+    DamageType = EDamageType::PT_Default;
 
     //Root Collider
     Collider = CreateDefaultSubobject<USphereComponent>(TEXT("Collider"));
-    //Collider->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     RootComponent = Collider;
 
     // Create the mesh component 
@@ -23,10 +24,11 @@ ABullet::ABullet()
     {
         MeshComponent->SetStaticMesh(SphereMeshAsset.Object);
     }
+
     MeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     MeshComponent->SetupAttachment(RootComponent);
 
-
+    //Movement Component
     ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement"));
     ProjectileMovement->UpdatedComponent = RootComponent;
     ProjectileMovement->InitialSpeed = ProjectileSpeed; // Set a default initial speed
@@ -58,6 +60,41 @@ void ABullet::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
+    switch (ProjectileType)
+    {
+    case EProjectileType::GRENADE:
+        GrenadeTick(DeltaTime);
+        break;
+
+    case EProjectileType::BUFF:
+        BuffTick(DeltaTime);
+        break;
+
+    case EProjectileType::BULLET:
+    default:
+        BulletTick(DeltaTime);
+        break;
+    }
+
+    ExtraTick(DeltaTime);
+
+    //This is a fail safe in case a bullet has trackDistance and DestroyOnEnemyHit as both false parameters
+    maximumTimeAlive -= DeltaTime;
+    if (maximumTimeAlive <= 0) Destroy();
+}
+
+void ABullet::BuffTick(float DeltaTime)
+{
+
+}
+
+void ABullet::GrenadeTick(float DeltaTime)
+{
+
+}
+
+void ABullet::BulletTick(float DeltaTime)
+{
     // Move the projectile
     FVector NewLocation = GetActorLocation() + (movementDirection * ProjectileSpeed * DeltaTime);
     FHitResult hit;
@@ -67,7 +104,7 @@ void ABullet::Tick(float DeltaTime)
         OnHit(Collider, hit.GetActor(), hit.GetComponent(), hit.ImpactNormal, hit);
 
     //Distance Control
-    if(TrackDistance)
+    if (TrackDistance)
         distanceCovered += (ProjectileSpeed * DeltaTime);
 
     if (distanceCovered >= ProjectileRange)
@@ -78,17 +115,16 @@ void ABullet::Tick(float DeltaTime)
 
 void ABullet::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-    
     if (OtherActor && OtherActor != this && OtherComp)
     {
-        // Log the actor we hit
-        UE_LOG(LogTemp, Warning, TEXT("Bullet hit: %s"), *OtherActor->GetName());
-
         UGameplayStatics::ApplyDamage(OtherActor, Damage, GetInstigatorController(), this, nullptr);
-        
-        // Destroy the bullet on hit
         DoExplode(Hit);
-        Destroy();
+        
+        if (DestroyOnEnemyHit && OtherActor->Tags.Contains(FName("Badguy")))
+        {
+             Destroy();
+        }
+        //else if (){}
     }
 }
 

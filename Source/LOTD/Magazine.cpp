@@ -20,12 +20,13 @@ void UMagazine::LoadDefaultEnemyMagazine()
 
 void UMagazine::LoadDefaultCowboyMagazine()
 {
+	MagSize = 6;
 	mag.Add(0);
+	mag.Add(1);
+	mag.Add(2);
 	mag.Add(0);
-	mag.Add(0);
-	mag.Add(0);
-	mag.Add(0);
-	mag.Add(0);
+	mag.Add(1);
+	mag.Add(2);
 }
 
 // Called when the game starts

@@ -55,7 +55,7 @@ ACowboyCharacter::ACowboyCharacter(const FObjectInitializer& ObjectInitializer)
         CowboyMesh->SetSkeletalMesh(CowboyMeshAsset.Object);
     }
     
-    // Animation Init
+    //Animation Init
     static ConstructorHelpers::FObjectFinder<UAnimBlueprint> CowboyAnimBlueprint(TEXT("AnimBlueprint'/Game/Characters/Mannequins/Animations/ABP_Manny.ABP_Manny'"));
     if (CowboyAnimBlueprint.Succeeded())
     {

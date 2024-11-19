@@ -26,10 +26,10 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime);
 
-	UPROPERTY(VisibleAnywhere, Category = "Pooled Data")
+	UPROPERTY(EditAnywhere, Category = "LOTD|Game Data")
 	AWaveManager* WaveManager;
 
-	UPROPERTY(VisibleAnywhere, Category = "Pooled Data")
+	UPROPERTY(EditAnywhere, Category = "LOTD|Game Data")
 	TArray<TSubclassOf<ABullet>> ProjectilePool;
 
 private:

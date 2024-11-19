@@ -46,53 +46,63 @@ public:
 	void SetCollisionAsCowboy();
 	void OnWallHit(FHitResult hit);
 
-	//Called when this 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Projectile Properties")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Bullet|Events")
 	void OnFire();
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Projectile Properties")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Bullet|Events")
 	void DoExplode(FHitResult hit);
+
+	//Call this in blueprint to implement 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Bullet|Events")
+	void ExtraTick(float DeltaTime);
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
+	void BulletTick(float DeltaTime);
+	void BuffTick(float DeltaTime);
+	void GrenadeTick(float DeltaTime);
+
 public:
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Projectile Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet|Properties")
 	UProjectileMovementComponent* ProjectileMovement;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Projectile Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet|Properties")
 	USphereComponent* Collider;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet|Properties")
 	UStaticMeshComponent* MeshComponent;
 
-	UPROPERTY(EditAnywhere, Category = "Projectile Properties")
-	EProjectileType eProjectileType;
+	UPROPERTY(EditAnywhere, Category = "Bullet|Stats")
+	EProjectileType ProjectileType;
 
-	UPROPERTY(EditAnywhere, Category = "Projectile Properties")
-	EDamageType eDamageType;
+	UPROPERTY(EditAnywhere, Category = "Bullet|Stats")
+	EDamageType DamageType;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet|Stats")
 	float RecoilTime = 0.40f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet|Stats")
 	float Damage = 10.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet|Stats")
 	float ProjectileSpeed = 2000;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet|Stats")
+	bool DestroyOnEnemyHit = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet|Stats")
 	bool TrackDistance = true;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet|Stats")
 	float ProjectileRange = 1500;
 
 private:
 	FVector movementDirection;
 	float distanceCovered;
 
-	void HandleHit(FHitResult hit);
+	float maximumTimeAlive = 60.f;
 };
