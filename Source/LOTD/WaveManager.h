@@ -4,8 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "WaveDataContainer.h"
+
 #include "WaveManager.generated.h"
+
+class ABadguy;
+class UWaveDataContainer;
 
 UCLASS()
 class LOTD_API AWaveManager : public AActor
@@ -23,7 +26,6 @@ public:
 
 	void AddSpawnPoint(AActor* point);
 
-	UPROPERTY(EditAnywhere)
 	UWaveDataContainer* WaveData;
 
 protected:

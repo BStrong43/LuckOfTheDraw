@@ -2,6 +2,7 @@
 
 
 #include "WaveManager.h"
+#include "WaveDataContainer.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -99,7 +100,8 @@ void AWaveManager::TrySpawnEnemy(TSubclassOf<ABadguy> EnemyClass)
         TotalSpawnedCount[EnemyClass]++;
 
         // Bind a delegate or event for enemy death
-        SpawnedEnemy->OnDeath.AddDynamic(this, &AWaveManager::OnEnemyDeath);
+        //SpawnedEnemy->OnDeath.AddDynamic(this, &AWaveManager::OnEnemyDeath);
+        SpawnedEnemy->OnDeath.BindUObject(this, &AWaveManager::OnEnemyDeath);
     }
 }
 

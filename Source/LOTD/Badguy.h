@@ -10,7 +10,8 @@
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Badguy.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyDeath, TSubclassOf<ABadguy>, EnemyClass);
+typedef TDelegate<void(TSubclassOf<ABadguy>)> FOnEnemyDeath;
+FUNC_DECLARE_DELEGATE(FOnEnemyDeath, void, TSubclassOf<ABadguy>)
 
 UCLASS()
 class LOTD_API ABadguy : public APawn
@@ -51,7 +52,7 @@ public:
 
 
 public:
-	UPROPERTY(BlueprintAssignable, Category = "Badguy|Events")
+	//This cannot be used in blueprints
 	FOnEnemyDeath OnDeath;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Badguy|Movement")

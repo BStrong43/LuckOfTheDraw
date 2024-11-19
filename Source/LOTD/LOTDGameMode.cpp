@@ -25,6 +25,7 @@ ALOTDGameMode::ALOTDGameMode()
 //Currently not in use
 void ALOTDGameMode::LoadProjectilePoolRecursive()
 {
+    /*
 	ProjectilePool.Empty();
 
 	ProjectilePool.Add(ABullet::StaticClass());
@@ -52,6 +53,7 @@ void ALOTDGameMode::LoadProjectilePoolRecursive()
             //ProjectilePool.Add(Cast<TSubclassOf<ABullet>>(Blueprint->GeneratedClass->StaticClass()));
         }
     }
+    */
 }
 
 void ALOTDGameMode::Tick(float DeltaTime)

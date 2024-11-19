@@ -121,7 +121,7 @@ float ABadguy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, A
 
 void ABadguy::Die()
 {
-    OnDeath.Broadcast(GetClass());
+    //OnDeath.Execute(this->StaticClass());
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Killed"));
     GetController()->StopMovement();
     Destroy();
