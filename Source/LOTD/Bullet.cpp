@@ -124,7 +124,10 @@ void ABullet::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrim
         {
              Destroy();
         }
-        //else if (){}
+        else if (Hit.Component->GetCollisionObjectType() == ECC_WorldStatic)
+        {
+            Destroy();
+        }
     }
 }
 

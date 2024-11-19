@@ -83,7 +83,7 @@ public:
 	EDamageType DamageType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet|Stats")
-	float RecoilTime = 0.40f;
+	float RecoilTime = 0.25f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet|Stats")
 	float Damage = 10.0f;
