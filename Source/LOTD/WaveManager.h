@@ -26,6 +26,7 @@ public:
 
 	void AddSpawnPoint(AActor* point);
 
+	UPROPERTY(EditAnywhere)
 	UWaveDataContainer* WaveData;
 
 protected:
